@@ -532,6 +532,26 @@ Qed.
 
 
 (* Ce  n'est pas aussi trivial qu'il n'y paraît. *)
+
+
+Lemma add1_trv : forall a, S a = 1+a.
+Proof.
+  simpl.
+  reflexivity.
+Qed.
+
+Lemma add1_comm : forall a, S a = a+1.
+Proof.
+  intros.
+  induction a.
+  *
+    apply zero_plus.    
+  *
+    simpl.
+    rewrite IHa.
+    reflexivity.
+Qed.
+    
 Lemma plus_comm : forall a b, a + b = b + a.
 Proof.
   induction b.
@@ -539,22 +559,45 @@ Proof.
     simpl.
     apply plus_zero.
   *
+    rewrite add1_trv.
+    rewrite plus_associative.
+    rewrite<- add1_comm.
     simpl.
-Qed.
-
-Lemma mult_comm : forall a b, a * b = b * a.
-Proof.
-...
+    rewrite IHb.
+    reflexivity.
 Qed.
 
 Lemma mult_distrib_gauche : forall a b c, a * (b + c) = a * b + a * c.
 Proof.
-...
+  induction a.
+  *
+  simpl.
+  reflexivity.
+  *
+    simpl.
+    intros.
+    rewrite IHa.
+    rewrite plus_assoc.
+    rewrite 
 Qed.
 
 Lemma mult_distrib_droite : forall a b c, (b + c) * a = b * a + c * a.
 Proof.
 ...
+Qed.
+
+Lemma mult_comm : forall a b, a * b = b * a.
+Proof.
+  induction a.
+  *
+    simpl.
+    symmetry.
+    apply mult_zero.
+  *
+    intros.
+    simpl.
+    Print Nat.mul.
+    rewrite. 
 Qed.
 
 Lemma identite : 
