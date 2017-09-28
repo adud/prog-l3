@@ -439,28 +439,45 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma plus_associative:
+  forall x y z, x+(y+z)=(x+y)+z.
+Proof.
+  intros.
+  induction x.
+  *simpl.
+   reflexivity.
+  *simpl.
+   rewrite IHx.
+   reflexivity.
+Qed.
+
 Lemma leq_transitive : 
   forall x y z, leq x y -> leq y z -> leq x z.
 Proof.
-...
+  intros.
+  destruct H.
+  destruct H0.
+  exists (x0+x1).
+  rewrite<- H0.
+  rewrite<- H.
+  apply plus_associative.
 Qed.
-
-
-
-
-
 (** Partie 5 : Arithmétique **)
 
 (* Rappel: on utilise la tactique simpl, pour simplifier les calculs. *)
 Lemma zero_plus : forall x:nat, 0 + x = x.
 Proof.
-...
+  simpl.
+  reflexivity.
 Qed.
 
 Lemma exists_factor : 
   exists n, exists m , n * (m+1) = 35.
 Proof.
-...
+  exists 5.
+  exists 6.
+  simpl.
+  reflexivity.
 Qed.
 
 (* La tactique simpl ne marche par pour prouver la proposition
@@ -475,19 +492,32 @@ Proof.
    principe d'induction pour prouver un but par induction sur 
    la variable x. *)
 
-induction x.
+  induction x.
+  *
+    reflexivity.
+  *
+    simpl.
+    rewrite IHx.
+    reflexivity.
 (* Il faut ensuite prouver le cas de base et l'hérédité...*) 
 
 Qed.
 
 Lemma plus_assoc : forall a b c, (a + b) + c = a + (b + c).
 Proof.
-...
+  symmetry.
+  apply plus_associative.
 Qed.
 
 Lemma mult_zero : forall a, a*0 = 0.
 Proof.
-...
+  induction a.
+  *
+    simpl.
+    reflexivity.
+  *
+    simpl.
+    apply IHa.
 Qed.
 
 
@@ -501,10 +531,15 @@ Qed.
 (* N'hésitez pas à faire des lemmes intermédiaires !*)
 
 
-(* Ce n'est pas aussi trivial qu'il n'y paraît. *)
+(* Ce  n'est pas aussi trivial qu'il n'y paraît. *)
 Lemma plus_comm : forall a b, a + b = b + a.
 Proof.
-...
+  induction b.
+  *
+    simpl.
+    apply plus_zero.
+  *
+    simpl.
 Qed.
 
 Lemma mult_comm : forall a b, a * b = b * a.
