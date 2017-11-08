@@ -239,7 +239,9 @@ bas. *)
 
 Inductive expr : Set :=
   | N : nat -> expr
-  | Randombit : expr
+  (*| Randombit : expr*)
+  | Zero : expr
+  | Un : expr
   | Plus : expr -> expr -> expr
   | Mult : expr -> expr -> expr
   | Minus : expr -> expr -> expr
@@ -278,8 +280,10 @@ Inductive expr : Set :=
 
 Inductive bs : expr -> nat -> Prop := 
   | bs_nat : forall n, bs (N n) n
-  | bs_Randombit0 : bs Randombit 0
-  | bs_Randombit1 : bs Randombit 1
+  (*| bs_Randombit0 : bs Randombit 0
+  | bs_Randombit1 : bs Randombit 1*)
+  | bs_Zero : bs Zero 0
+  | bs_Un : bs Un 1
   | bs_Plus : forall e1 e2 n m, bs e1 n -> bs e2 m -> bs (Plus e1 e2) (n+m)
   | bs_Mult : forall e1 e2 n m, bs e1 n -> bs e2 m -> bs (Mult e1 e2) (n*m)
   | bs_Minus : forall e1 e2 n m, bs e1 n -> bs e2 m -> bs (Minus e1 e2) (n-m)
@@ -290,14 +294,34 @@ Inductive bs : expr -> nat -> Prop :=
 Essayez de définir une telle sémantique pour faire en sorte que
 "AssertZero e1 e2" se comporte comme "e2" si "e1" ne peut PAS se
 réduire vers 0. Coq accepte-t'il la définition ? Pourquoi ? *)
-
+(*
 Lemma expression_example :
   bs (AssertZero (Minus (Minus (N 2) Randombit) Randombit) (Mult (N 5) (N 3))) 15.
- (* replace expr1 with expr2 => substitue expr1 par expr2 et un but apparait pour prouver l'égalité *)
-
-
+  (* replace expr1 with expr2 => substitue expr1 par expr2 et un but apparait pour prouver l'égalité *)
+  apply bs_AssertZero.
+  *
+    replace 0 with (1-1).
+    apply bs_Minus.
+    simpl.
+    replace 1 with (2-1).
+    apply bs_Minus.
+    simpl.
+    apply bs_nat.
+    apply bs_Randombit1.
+    simpl.
+    reflexivity.
+    apply bs_Randombit1.
+    simpl.
+    reflexivity.
+  *
+    replace 15 with(5*3).
+    apply bs_Mult.
+    apply bs_nat.
+    apply bs_nat.
+    simpl.
+    reflexivity.
 Qed.
-
+*)
 
 (* On va vouloir définir une fonction d'évaluation des expressions; pour ça, on se débarasse de RandomBit et 
     on le remplace par Zero et Un, qui valent toujours zero et un! Commentez les expressions et redéfinissez-les ainsi. *)
@@ -308,15 +332,39 @@ Qed.
 (* Définissez maintenant une fonction récursive eval qui calcule la valeur d'une expression 
     arithmétique. Pour le cas ou un AssertZero échoue, considérez que la valeur retournée par l'assert est 0. *)
 
-Fixpoint eval (e : expr) : nat := match e with
- | ...
+Fixpoint eval (e : expr) : nat :=
+  match e with
+  |N(n) => n
+  |Zero => 0
+  |Un => 1
+  |Plus e1 e2 => (eval e1) + (eval e2)
+  |Mult e1 e2 => (eval e1) * (eval e2)
+  |Minus e1 e2 => (eval e1) - (eval e2)
+  |AssertZero e1 e2 =>
+   match eval e1 with
+   |0 => eval e2
+   |_ => 0
+   end
 end.
 
 (* On va maintenant prouver  qu'on a défini une fonction qui est correcte vis-à-vis de 
 	la sémantique à grand pas des expressions *)
 
 Lemma eval_correct : forall (e : expr) (n : nat), bs e n -> eval e = n.
-
+  intros.
+  inversion H.
+  *
+    simpl.
+    reflexivity.
+  *
+    simpl.
+    reflexivity.
+  *
+    simpl.
+    reflexivity.
+  *
+    simpl.
+    induction e.
 Qed.
 
 (* Peut-on prouver le lemme opposé? (c'est-à-dire que si eval e = n, alors on a bs e n). Pourquoi? *)

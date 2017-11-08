@@ -1,0 +1,5 @@
+f <- 1;
+while x > 0 do
+  f <- f * x;
+  x <- x - 1
+done
