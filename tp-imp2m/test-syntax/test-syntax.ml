@@ -113,7 +113,7 @@ let string_of_imp command =
      let sb = string_of_bexpr b in
      let sc1 = loop (tab ^ tab_shift) "\n" c1 in
      let sc2 = loop (tab ^ tab_shift) "\n" c2 in
-     Printf.sprintf "%sif %s %s%s else \n%s%s\nfi%s" tab_shift sb sc1 tab_shift sc2 tab_shift return
+     Printf.sprintf "%sif %s\n%s%s else \n%s%s\nfi%s" tab_shift sb sc1 tab_shift sc2 tab_shift return
   | Cwhiledo (b, c)  ->
      let sb = string_of_bexpr b in
      let sc = loop (tab ^ tab_shift) "\n" c in
@@ -200,39 +200,46 @@ let string_of_ml left_margin expression =
 
 (* Imp code for (x,y) -> z:= x+y *)
 
-let imp_ex1 = ... ;;
-let () = print_string (string_of_imp imp_ex1);;
-let () = print_string "\n\n";;
+let imp_ex1 = Cassign ("z",Abin(Aadd,(Avar "x"),(Avar "y")));;
+let () = print_string (string_of_imp imp_ex1);print_string "\n\n";;
 
-(* Imp code for x -> y:= sign(x) = max(x,0) *)
+(* Imp code for x -> y:= max(x,0) *)
 
-let imp_ex2 = ... ;;
-let () = print_string (string_of_imp imp_ex2);;
-let () = print_string "\n\n";;
+let imp_ex2 = Cifte(Btest(Bge,Avar("x"),Acst(0)),
+                    Cassign("y",Avar("x")),
+                    Cassign("y",Acst(0)));;
+let () = print_string (string_of_imp imp_ex2);print_string "\n\n";;
 
 (* Imp code for x -> f:= x! *)
 
-let imp_ex3 = ... ;;
+let imp_ex3 =
+  Cseq(Cassign("f",Acst(1)),
+       Cwhiledo(Btest(Bne,Avar("x"),Acst(0)),
+                Cseq(Cassign("f",Abin(Amul,Avar("f"),Avar("x"))),
+                     Cassign("x",Abin(Asub,Avar("x"),Acst(1)))
+                    )
+               )
+      );;
 let () = print_string (string_of_imp imp_ex3);;
 let () = print_string "\n\n";;
 
 
 (* ML code for (x,y) -> z:= x+y *)
 
-let ml_ex1 = ... ;;
+let ml_ex1 = Fletrecin(0,["x";"y"],Faexpr(Abin(Aadd,Avar("x"),Avar("y"))),Fcall(0,["a";"b"]));;
 let () = print_string (string_of_ml "" ml_ex1);;
 let () = print_string "\n\n";; 
 
 (* ML code for x -> y:= sign(x) = max(x,0) *)
 
-let ml_ex2 = ... ;;
+let ml_ex2 = () ;;
 let () = print_string (string_of_ml "" ml_ex2);;
 let () = print_string "\n\n";;
    
    
 (* ML code for x -> f:= x! *)
 
-let ml_ex3 = ... ;;
+let ml_ex3 = ();;
 let () = print_string (string_of_ml "" ml_ex3);;
 let () = print_string "\n\n";;
       
