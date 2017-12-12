@@ -509,30 +509,74 @@ assert (H: forall s1 s2, s1=>s2 -> forall p1 p2 e1 e2, s1=[p1|e1] ->
 s2=[p2|e2]-> forall e3, execute e2 p2 e3 ->execute e1 p1 e3).
 
 +
-  intros.
+  intros until 1.
   induction H.
-  inversion H0.
-  inversion H1.
-  apply ss_execute_aux_ass with (e2:=e2)(x:=x).
-  rewrite H6 in H.
-  apply H.
-  rewrite<- H6, <- H8.
-  apply H3.
-  rewrite H7.
-  apply H2.
-  
-  inversion H0.
-  inversion H1.
-  apply ss_execute_aux_seq_skip.
-  rewrite <-H4,H6.
-  apply H2.
-
-  inversion H0.
-  inversinon H1.
-  apply ss_execute_aux_seq_seq.
-  
-+ ... (preuve du lemme, en utilisant H)
-
+  *
+    intros.
+    inversion H1.
+    inversion H2.
+    apply ss_execute_aux_ass with (x:=x) (e2:=s').
+    rewrite<- H6.
+    apply H.
+    rewrite<- H6.
+    apply H0.
+    rewrite H7,H8.
+    apply H3.
+  *
+    intros.
+    inversion H.
+    inversion H0.
+    apply ss_execute_aux_seq_skip.
+    rewrite <-H4,H6.
+    apply H1.
+  *
+    intros.
+    inversion H0.
+    inversion H1.
+    apply ss_execute_aux_seq_seq with (e2:=e2) (c':=c').
+    apply IHss.
+    rewrite H5.
+    reflexivity.
+    rewrite H7.
+    reflexivity.
+    rewrite H6.
+    apply H2.
+  *
+    intros.
+    inversion H0.
+    inversion H1.
+    apply execute_ifte_t.
+    rewrite<- H5.
+    apply H.
+    rewrite<- H5.
+    rewrite H7.
+    apply H2.
+  *    
+    intros.
+    inversion H0.
+    inversion H1.
+    apply execute_ifte_f.
+    rewrite<- H5.
+    apply H.
+    rewrite<- H5.
+    rewrite H7.
+    apply H2.
+  *
+    intros.
+    inversion H.
+    inversion H0.
+    apply ss_execute_aux_while.
+    rewrite H4 in H6.
+    rewrite H6,H5.
+    apply H1.
+    
++
+  intros.
+  apply H with (s1:=[p1|e1])(s2:=[p2|e2])(p2:=p2)(e2:=e2).
+  apply H0.
+  reflexivity.
+  reflexivity.
+  apply H1.
 Qed.
 
 
@@ -548,7 +592,33 @@ Qed.
 Lemma sse_execute : forall p e1 e2,
   [ p | e1 ] =>*  [ skip | e2 ] -> execute e1 p e2.
 Proof.
-...
+  assert (H:forall s1 s2:state,
+             s1=>* s2 ->
+             forall p e1 e2,
+               s1 = [p|e1] -> s2 = [skip|e2] -> execute e1 p e2).
+  +
+  intros until 1.
+  induction H.
+    *
+      intros.
+      rewrite H in H0.
+      inversion H0.
+      apply execute_skip.
+    *
+      intros.
+      destruct b.
+      apply ss_execute_aux with (p2:=p0)(e2:=e).
+      rewrite<- H1.
+      apply H.
+      apply IHstar.
+      reflexivity.
+      apply H2.
+  +
+    intros.
+    apply H with (s1:=[p|e1])(s2:=[skip|e2]).
+    apply H0.
+    reflexivity.
+    reflexivity.
 Qed.
 
 
@@ -573,23 +643,166 @@ Qed.
 
 Lemma get_det : forall s a v1, get s a v1 -> forall v2, get s a v2 -> v2 = v1.
 Proof.
-...
+  intros.
+  induction H.
+  inversion H0.
+  reflexivity.
+  destruct H6.
+  reflexivity.
+  apply IHget.
+  inversion H0.
+  symmetry in H2.
+  destruct (H1 H2).
+  apply H7.
 Qed.
 
 
 Lemma update_det : forall s a v s1, update s a v s1 -> forall s2, update s a v s2 -> s2 = s1.
 Proof.
-...
+  intros until 1.
+  induction H.
+  intros.
+  inversion H.
+  reflexivity.
+  destruct H7.
+  reflexivity.
+
+  intros.
+  inversion H1.
+  symmetry in H2.
+  destruct (H0 H2).
+  assert (HH:l'0 = l').
+  apply IHupdate.
+  apply H8.
+  rewrite HH.
+  reflexivity.
+Qed.
+
+
+Lemma succ_inj : forall m n, S m = S n -> m = n.
+Proof.
+intros.
+inversion H.
+reflexivity.
 Qed.
 
 Lemma aeval_det : forall a s n1, aeval s a n1 -> forall n2, aeval s a n2 -> n2 = n1.
 Proof.
-...
-Qed.
+  intros a s.
+  induction a.
+  intros.
+  inversion H.
+  inversion H0.
+  reflexivity.
 
+  intros.
+  apply get_det with(a:=a)(s:=s).
+  inversion H.
+  apply H3.
+  inversion H0.
+  apply H3.
+
+  intros.
+  inversion H.
+  inversion H0.
+  assert (HH:n0=n).
+  apply IHa.
+  apply H3.
+  apply H7.
+  rewrite HH.
+  reflexivity.
+
+  intros.
+  inversion H.
+  inversion H0.
+  assert (HH:S n2 = S n1).
+  apply IHa.
+  apply H3.
+  apply H7.
+  apply succ_inj.
+  apply HH.
+  admit.
+  admit.  
+Admitted.
+
+
+Lemma npp :forall n m, n<=m -> m<n -> False.
+  admit.
+Admitted.
 Lemma beval_det : forall a s b1, beval s a b1 -> forall b2, beval s a b2 -> b2 = b1.
 Proof.
-...
+  intros a s.
+  induction a.
+  intros.
+  inversion H.
+  inversion H0.
+  reflexivity.
+  subst.
+  assert(HH:n0=n).
+  apply aeval_det with (a:=a)(s:=s).
+  apply H3.
+  apply H10.
+
+  assert(HHH:m=m0).
+  apply aeval_det with(a:=a0)(s:=s).
+  apply H12.
+  apply H5.
+  rewrite<- HHH,HH in H14.
+  assert(False).
+  apply npp with (n:=m)(m:=n).
+  apply H14.
+  apply H7.
+  destruct H1.
+
+  inversion H0.
+  subst.
+  assert(HH:n0=n).
+  apply aeval_det with (a:=a)(s:=s).
+  apply H3.
+  apply H10.
+
+  assert(HHH:m=m0).
+  apply aeval_det with(a:=a0)(s:=s).
+  apply H12.
+  apply H5.
+  rewrite<- HHH,HH in H14.
+  assert(False).
+  apply npp with (n:=m)(m:=n).
+  apply H7.
+  apply H14.
+  destruct H1.
+
+
+  reflexivity.
+
+  intros.
+  inversion H.
+  inversion H0.
+  reflexivity.
+  assert(HH:n0=n).
+  apply aeval_det with(a:=a)(s:=s).
+  apply H3.
+  apply H10.
+  assert(HHH:m0=m).
+  apply aeval_det with (a:=a0)(s:=s).
+  apply H5.
+  apply H12.
+  rewrite HH,HHH in H14.
+  destruct (H7 H14).
+  inversion H0.
+  assert(HH:n0=n).
+  apply aeval_det with(a:=a)(s:=s).
+  apply H3.
+  apply H10.
+  assert(HHH:m0=m).
+  apply aeval_det with (a:=a0)(s:=s).
+  apply H5.
+  apply H12.
+  rewrite HH,HHH in H14.
+  destruct (H14 H7).
+  
+  reflexivity.
+  
 Qed.
 
 Lemma bs_det : forall s p s1, execute s p s1 -> forall s2, execute s p s2 -> s2 = s1.
