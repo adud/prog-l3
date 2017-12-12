@@ -721,14 +721,13 @@ Proof.
   apply H7.
   apply succ_inj.
   apply HH.
-  admit.
+  subst.
+  inversion H3.
   admit.  
 Admitted.
 
 
-Lemma npp :forall n m, n<=m -> m<n -> False.
-  admit.
-Admitted.
+Require Le.
 Lemma beval_det : forall a s b1, beval s a b1 -> forall b2, beval s a b2 -> b2 = b1.
 Proof.
   intros a s.
@@ -748,11 +747,8 @@ Proof.
   apply H12.
   apply H5.
   rewrite<- HHH,HH in H14.
-  assert(False).
-  apply npp with (n:=m)(m:=n).
-  apply H14.
-  apply H7.
-  destruct H1.
+  apply Lt.le_not_lt in H14.
+  destruct (H14 H7).
 
   inversion H0.
   subst.
@@ -766,12 +762,8 @@ Proof.
   apply H12.
   apply H5.
   rewrite<- HHH,HH in H14.
-  assert(False).
-  apply npp with (n:=m)(m:=n).
-  apply H7.
-  apply H14.
-  destruct H1.
-
+  apply Lt.le_not_lt in H7.
+  destruct(H7 H14).
 
   reflexivity.
 
@@ -805,9 +797,98 @@ Proof.
   
 Qed.
 
+
+Lemma bvnc : forall s a, beval s a true -> beval s a false -> False.
+Proof.
+  intros.
+  assert(true=false).
+  apply beval_det with (s:=s)(a:=a).
+  assumption.
+  assumption.
+  inversion H1.
+Qed.
+
 Lemma bs_det : forall s p s1, execute s p s1 -> forall s2, execute s p s2 -> s2 = s1.
 Proof.
-...
+  intros until 1.
+  induction H.
+  intros.
+  inversion H.
+  reflexivity.
+  intros.
+  inversion H1.
+  subst.
+  assert (o'0=o').
+  apply IHexecute1.
+  apply H5.
+  apply IHexecute2.
+  rewrite <-H2.
+  assumption.
+
+  intros.
+  inversion H1.
+  subst.
+  apply IHexecute.
+  assumption.
+
+  assert(False).
+  apply bvnc with (s:=o)(a:=b).
+  assumption.
+  assumption.
+  contradiction.
+
+  intros.
+  inversion H1.
+  subst.
+  assert(False).
+  apply bvnc with (s:=o) (a:=b).
+  assumption.
+  assumption.
+  contradiction.
+
+  subst.
+  apply IHexecute.
+  assumption.
+
+  intros.
+  inversion H0.
+  subst.
+  reflexivity.
+  subst.
+  assert(False).
+  apply bvnc with (s:=o) (a:=b).
+  assumption.
+  assumption.
+  contradiction.
+
+  intros.
+  inversion H2.
+  subst.
+  assert(False).
+  apply bvnc with (s:=s2) (a:=b).
+  assumption.
+  assumption.
+  contradiction.
+  subst.
+  assert(o'0 = o').
+  apply IHexecute1.
+  assumption.
+  apply IHexecute2.
+  rewrite <-H3.
+  assumption.
+
+  intros.
+  inversion H1.
+  subst.
+
+  assert(n=n0).
+  apply aeval_det with (a:=a)(s:=o).
+  assumption.
+  assumption.
+  apply update_det with (s:=o) (a:=x) (v:=n).
+  assumption.
+  rewrite H2.
+  assumption.
 Qed.
 
 
