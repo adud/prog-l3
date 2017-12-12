@@ -688,45 +688,52 @@ Qed.
 
 Lemma aeval_det : forall a s n1, aeval s a n1 -> forall n2, aeval s a n2 -> n2 = n1.
 Proof.
-  intros a s.
-  induction a.
+  intros until 1.
+  induction H.
   intros.
   inversion H.
-  inversion H0.
   reflexivity.
 
   intros.
-  apply get_det with(a:=a)(s:=s).
-  inversion H.
-  apply H3.
   inversion H0.
-  apply H3.
-
-  intros.
-  inversion H.
-  inversion H0.
-  assert (HH:n0=n).
-  apply IHa.
-  apply H3.
-  apply H7.
-  rewrite HH.
-  reflexivity.
-
-  intros.
-  inversion H.
-  inversion H0.
-  assert (HH:S n2 = S n1).
-  apply IHa.
-  apply H3.
-  apply H7.
-  apply succ_inj.
-  apply HH.
   subst.
+  apply get_det with (s:=l)(a:=x).
+  assumption.
+  assumption.
+
+  intros.
+  inversion H0.
+  subst.
+  assert(n0=n).
+  apply IHaeval.
+  assumption.
+  rewrite H1.
+  reflexivity.
+
+  intros.
+  inversion H0.
+  subst.
+  assert(S n2 = S n).
+  apply IHaeval.
+  assumption.
+  inversion H1.
+  reflexivity.
+
+  
+  subst.
+  apply IHaeval in H3.
   inversion H3.
-  admit.  
-Admitted.
 
+  intros.
+  inversion H0.
+  subst.
+  apply IHaeval in H3.
+  inversion H3.
 
+  reflexivity.
+
+Qed.
+  
 Require Le.
 Lemma beval_det : forall a s b1, beval s a b1 -> forall b2, beval s a b2 -> b2 = b1.
 Proof.
