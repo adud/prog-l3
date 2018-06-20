@@ -1,0 +1,31 @@
+// -*- coding: utf-8; mode:c -*-
+
+/*
+
+  (* Nous axiomatisons l'exponentielle, selon la même idée que pour la factorielle *)
+  Variable exp : nat -> nat -> nat.
+  Axiom exp_spec_zero : forall x, exp x 0 = 1.
+  Axiom exp_spec_succ : forall x n, exp x (S n) = x * exp x n.
+
+  Parameter x n : nat.
+
+*/
+
+{ n >= 0 }
+t <- x;
+p <- n;
+e <- 1;
+Inv:while p > 0 {
+  if mod(p, 2) = 1 {
+    e <- e * t
+  } else {
+    skip
+  };
+  t <- t * t;
+  p <- div(p, 2)
+}
+{ e = exp(x, n) }
+
+/*
+ (* That's All! *)
+ */

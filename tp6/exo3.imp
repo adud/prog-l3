@@ -1,0 +1,22 @@
+// -*- coding: utf-8; mode:c -*-
+
+/*
+
+  (* Il existe une fonction, qui réalise une certaine spécification *)
+
+  Variable fact : nat -> nat.
+  Axiom fact_spec_zero : fact 0 = 1.
+  Axiom fact_spec_succ : forall x : nat, x > 0 -> fact x = x * fact (x - 1).
+
+  Parameter n : nat.
+
+*/
+
+{ n >= 0 /\ x = n }
+f <- 1;
+Inv:assert fact(n) = f * fact(x) /\ (x >= 0);
+while (x > 0) {
+  f <- f * x;
+  x <- x - 1
+}
+{ fact(n) = f /\ x = 0 }

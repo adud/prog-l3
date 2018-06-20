@@ -1,0 +1,45 @@
+// -*- coding: utf-8; mode:c -*-
+
+/*
+(** La fonction de McCarthy (étudiée aussi dans la partie 3 de l'examen 2016 *)
+
+  Fixpoint iter (e : nat) (f : nat -> nat) (x : nat) : nat :=
+    match e with
+      | S p => f (iter p f x)
+      | 0 => x
+    end.
+
+  Variable f91 : nat -> nat.
+  Axiom f91_spec_ge_101 : forall x, x >= 101 -> f91 x = x - 10.
+  Axiom f91_spec_le_100 : forall x, x <= 100 -> f91 x = f91 (f91 (x + 11)).
+
+  Parameter n : nat.
+
+*/
+
+{ n >= 0 }
+x <- n;
+e <- 1;
+Inv:assert e >= 0 /\ iter(e, f91, x) = f91(n);
+while (e > 0) {
+  if (x > 100) {
+    x <- x - 10;
+    e <- e - 1
+  } else {
+    x <- x + 11;
+    e <- e + 1
+  }
+}
+{ x = f91(n) }
+
+/*
+  (* Voilà pour la preuve de correction : le programme calcule la même chose que
+   * que la fonction f91 de MacCarthy.
+   * Pour que l'étude soit complète, il faudrait encore se demander :
+   * 1/ est que le programme, donc la fonction f91, termine sur toute entrée ?
+   * 2/ et le cas échéant, que calcule-t-elle ?
+   * En correction partielle, n'ayant pas prouvé 1/, il est difficile d'envisager 2/ !
+   * La correction totale sera vue en TD (et c'était la partie 3 de l'examen 2016).
+   *)
+
+*/

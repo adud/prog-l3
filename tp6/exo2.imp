@@ -1,0 +1,11 @@
+// -*- coding: utf-8; mode:c -*-
+
+/*
+  Parameter a b : nat.
+*/
+
+{ x = a /\ y = b }
+t <- x;
+x <- y;
+y <- t
+{ x = b /\ y = a }
